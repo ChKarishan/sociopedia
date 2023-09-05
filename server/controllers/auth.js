@@ -16,8 +16,8 @@ export const register = async(req, res) => {
             occupation
         } = req.body;
 
-        const salt = await bcrypt.genSalt();
-        const passwordHash = await bcrypt.hash(password, salt);
+        //const salt = await bcrypt.genSalt();
+        //const passwordHash = await bcrypt.hash(password, salt);
         const newUser = new User({
             firstName,
             lastName,
@@ -27,8 +27,8 @@ export const register = async(req, res) => {
             friends,
             location,
             occupation,
-            viewedProfile: Math.floor(Math.random()= 10000),
-            impressions: Math.floor(Math.random()= 10000),
+            //viewedProfile: Math.floor(Math.random()= 10000),
+            //impressions: Math.floor(Math.random()= 10000),
         });
         const savedUser = await newUser.save()
         res.status(201).json(savedUser);
@@ -36,25 +36,33 @@ export const register = async(req, res) => {
     } catch(err){
         res.status(500).json({error: err.message});
     }
-}
+};
 
 
 /* Logging In */
 
 export const login = async (req, res) => {
     try{
+        console.log("in try")
         const {email, password} = req.body;
-        const user = await User.findone({email: email});
+        console.log(req.body);
+        const user = await User.findOne({email: email});
+        console.log("in try2")
         if(!user) return res.status(400).json({msg: "User does not exist. "});
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({msg: "Invalid Credentials"});
+        console.log("try 3")
+        //const isMatch = await bcrypt.compare(password, user.password);
+       // if (!isMatch) return res.status(400).json({msg: "Invalid Credentials"});
+
+       const user1 = await User.findOne({password: password});
+       if(!user1) return res.status(400).json({msg: "invalid credentials. "});
 
         const token = jwt.sign({id: user._id}, process.env.JWT_SECRET);
-        delete user.password;
+        //delete user.password;
         res.status(200).json({ token, user});
         
     } catch (err) {
+        console.log(req.body)
         res.status(500).json({error: err.message});
     }
-}
+};
